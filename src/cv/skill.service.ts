@@ -1,0 +1,46 @@
+import { Injectable } from '@nestjs/common';
+import { CvService } from 'src/cv/cv.service';
+import { Cv } from 'src/cv/entities/cv.entity';
+import { Repository } from 'typeorm';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
+import { Skill } from './entities/skill.entity';
+
+@Injectable()
+export class SkillService {
+  constructor(
+    private readonly skillrepository: Repository<Skill>,
+    private readonly cvRepository: Repository<Cv>
+  ) {}
+
+  async create(createSkillDto: CreateSkillDto) {
+    const cv: Cv[] = await Promise.all(
+      createSkillDto.cv.map((item) => this.preloadCvsFromId(item)),
+    );
+    const skill: Skill = await this.skillrepository.create({
+      ...createSkillDto,
+      cv,
+    });
+    return this.skillrepository.save(skill);
+  }
+  private async preloadCvsFromId(id: string): Promise<Cv> {
+    return await this.cvRepository.findOne(id);
+  }
+
+  findAll() {
+    return this.skillrepository.find();
+  }
+
+  findOne(id: string) {
+    return this.skillrepository.findOne(id);
+  }
+  findName(designation: string) {
+    return this.skillrepository.findOne({ designation });
+  }
+
+  async remove(id: number) {
+    return await this.skillrepository.delete({ id })
+  }
+
+//TODO implement update method
+}
