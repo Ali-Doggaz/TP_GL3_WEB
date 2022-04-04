@@ -30,7 +30,6 @@ export class SkillController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    // TODO implement the remove method
     return this.skillService.remove(Number(id));
   }
 }
