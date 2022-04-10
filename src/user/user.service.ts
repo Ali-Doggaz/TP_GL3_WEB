@@ -25,7 +25,7 @@ export class UserService {
     if (newUser) {
       return await this.userRepository.save(newUser);
     } else {
-      throw new NotFoundException(`Le user d'id ${id} n'existe pas `);
+      throw new NotFoundException(`The user N ${id} doesn't exist `);
     }
   }
 

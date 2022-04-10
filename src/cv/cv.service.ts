@@ -61,7 +61,7 @@ export class CvService {
     if (cv) {
       return this.cvrepository.save(cv);
     } else {
-      throw new NotFoundException(`Le CV d'id ${id} n'existe pas `);
+      throw new NotFoundException(`The CV N ${id} doesn't exist `);
     }
   }
 }
