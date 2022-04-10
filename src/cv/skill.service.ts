@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CvService } from 'src/cv/cv.service';
 import { Cv } from 'src/cv/entities/cv.entity';
 import { Repository } from 'typeorm';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -42,5 +41,24 @@ export class SkillService {
     return await this.skillrepository.delete({ id })
   }
 
-//TODO implement update method
+  async update(id: number, updateSkillDto: UpdateSkillDto) {
+    const cv: Cv[] =
+      updateSkillDto.cv &&
+      (await Promise.all(
+        updateSkillDto.cv.map((e) => {
+          return this.cvRepository.findOne(e);
+        }),
+      ));
+
+    const newSkill: Skill = await this.skillrepository.preload({
+      id,
+      designation: updateSkillDto.designation,
+      ...cv,
+    });
+    if (newSkill) {
+      return this.skillrepository.save(newSkill);
+    } else {
+      throw new NotFoundException(`The skill N: ${id} doesn't exist `);
+    }
+  }
 }

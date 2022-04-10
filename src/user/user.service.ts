@@ -8,6 +8,10 @@ export class UserService {
     return 'This action adds a new user';
   }
 
+  remove(id: number) {
+    return this.userRepository.delete({ id });
+  }
+  
   findAll() {
     return `This action returns all user`;
   }
@@ -16,13 +20,14 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    //TODO implement this
-    return `pass`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const newUser = await this.userRepository.preload({ id, ...updateUserDto });
+    if (newUser) {
+      return await this.userRepository.save(newUser);
+    } else {
+      throw new NotFoundException(`Le user d'id ${id} n'existe pas `);
+    }
   }
 
-  remove(id: number) {
-        //TODO implement this
-        return `pass`;
-  }
+
 }

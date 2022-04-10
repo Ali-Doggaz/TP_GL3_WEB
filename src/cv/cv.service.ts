@@ -28,6 +28,10 @@ export class CvService {
     return skill ? skill : this.skillRepository.create({ designation, cv: [] });
   }
 
+  remove(id: number) {
+    return this.cvrepository.delete({ id });
+  }
+
   async findOne(id: string) {
     return await this.cvrepository.findOne(id);
   }
@@ -36,13 +40,28 @@ export class CvService {
     return this.cvrepository.find();
   }
 
-  update(id: number, updateCvDto: UpdateCvDto) {
-    //TODO implement this
-    return `test`;
-  }
+  async update(id: number, updateCvDto: UpdateCvDto) {
+    const skills: Skill[] =
+      updateCvDto.designation &&
+      (await Promise.all(
+        updateCvDto.designation.map((item) =>
+          this.preloadDesignationByName(item),
+        ),
+      ));
 
-  remove(id: number) {
-    //TODO implement this
-    return `test`;
+    const user: User =
+      updateCvDto.idUser &&
+      (await this.userRepository.findOne(+updateCvDto.idUser));
+    const cv: Cv = await this.cvrepository.preload({
+      id,
+      ...updateCvDto,
+      user,
+      skills,
+    });
+    if (cv) {
+      return this.cvrepository.save(cv);
+    } else {
+      throw new NotFoundException(`Le CV d'id ${id} n'existe pas `);
+    }
   }
 }
